@@ -182,10 +182,18 @@ def final_project():
         operation='append-only'
     )
 
+    dq_checks=[
+        {'check_sql': "SELECT COUNT(*) FROM users WHERE user_id is null", 'expected_result': 0, 'table':'users'},
+        {'check_sql': "SELECT COUNT(*) FROM songs WHERE song_id is null", 'expected_result': 0, 'table': 'songs'},
+        {'check_sql': "SELECT COUNT(*) FROM songplays WHERE songplay_id is null", 'expected_result': 0, 'table':'songplays'},
+        {'check_sql': "SELECT COUNT(*) FROM artists WHERE artist_id is null", 'expected_result': 0, 'table':'artists'},
+        {'check_sql': "SELECT COUNT(*) FROM time WHERE start_time is null", 'expected_result': 0, 'table':'time'},
+    ]
+
     run_quality_checks = DataQualityOperator(
         task_id='Run_data_quality_checks',
         redshift_conn_id="redshift",
-        table_list=["songplays","users",'artists','songs','time'],
+        table_list=dq_checks,
     )
 
     # run create staging and data warehouse area tasks
