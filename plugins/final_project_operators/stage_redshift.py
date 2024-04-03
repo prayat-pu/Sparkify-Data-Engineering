@@ -21,6 +21,7 @@ class StageToRedshiftOperator(BaseOperator):
                  delimiter=",",
                  ignore_headers=1,
                  sql='',
+                 operation='append-only',
                  *args, **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
@@ -36,6 +37,7 @@ class StageToRedshiftOperator(BaseOperator):
         self.aws_credentials_id = aws_credentials_id
         self.json_path = json_path
         self.sql = sql
+        self.operation = operation
 
     def execute(self, context):
         self.log.info('Connecting to AWS and Redshift')
@@ -43,8 +45,9 @@ class StageToRedshiftOperator(BaseOperator):
         credentials = aws_hook.get_credentials()
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
-        self.log.info("Clearing data from destination Redshift table")
-        redshift.run("DELETE FROM {}".format(self.table))
+        if self.operation == 'delete-load':
+            self.log.info("Clearing data from destination Redshift table")
+            redshift.run(f"delete from {self.table}")
 
         self.log.info("Copying data from S3 to Redshift")
         rendered_key = self.s3_key.format(**context)

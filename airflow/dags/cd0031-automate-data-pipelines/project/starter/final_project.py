@@ -114,7 +114,8 @@ def final_project():
         s3_bucket=s3_bucket,
         s3_key=log_data,
         json_path=log_json_path,
-        sql=sql_query.staging_events_copy
+        sql=sql_query.staging_events_copy,
+        operation='append-only'
     )
 
     stage_songs_to_redshift = StageToRedshiftOperator(
@@ -124,7 +125,8 @@ def final_project():
         table="staging_songs",
         s3_bucket=s3_bucket,
         s3_key=song_data,
-        sql=sql_query.staging_songs_copy
+        sql=sql_query.staging_songs_copy,
+        operation='append-only'
     )
 
 
@@ -144,35 +146,40 @@ def final_project():
         task_id='Load_songplays_fact_table',
         redshift_conn_id="redshift",
         table="songplays",
-        sql=sql_query.songplay_table_insert
+        sql=sql_query.songplay_table_insert,
+        operation='append-only'
     )
 
     load_user_dimension_table = LoadDimensionOperator(
         task_id='Load_user_dim_table',
         redshift_conn_id="redshift",
         table="users",
-        sql=sql_query.user_table_insert
+        sql=sql_query.user_table_insert,
+        operation='append-only'
     )
 
     load_song_dimension_table = LoadDimensionOperator(
         task_id='Load_song_dim_table',
         redshift_conn_id="redshift",
         table="songs",
-        sql=sql_query.song_table_insert
+        sql=sql_query.song_table_insert,
+        operation='append-only'
     )
 
     load_artist_dimension_table = LoadDimensionOperator(
         task_id='Load_artist_dim_table',
         redshift_conn_id="redshift",
         table="artists",
-        sql=sql_query.artist_table_insert
+        sql=sql_query.artist_table_insert,
+        operation='append-only'
     )
 
     load_time_dimension_table = LoadDimensionOperator(
         task_id='Load_time_dim_table',
         redshift_conn_id="redshift",
         table="time",
-        sql=sql_query.time_table_insert
+        sql=sql_query.time_table_insert,
+        operation='append-only'
     )
 
     run_quality_checks = DataQualityOperator(
